@@ -1,3 +1,13 @@
+==================================================
 DUNGEON SHOOTER
+==================================================
+Author(s):
+-Talarek: https://github.com/Talareeek/
+==================================================
 
-- all resources are made by me
+Dungeon Shooter is 2D game being made in C++
+
+==================================================
+Libraries:
+SFML: 3.0.2: https://www.sfml-dev.org/documentation/3.0.2/
+==================================================
