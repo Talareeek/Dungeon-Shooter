@@ -8,7 +8,15 @@ extern std::vector<sf::Texture*> game_textures;
 
 void map::chunk::generate(bool up_open, bool down_open, bool left_open, bool right_open)
 {
-    if(!isEmpty()) return;
+    if(isGenerated()) return;
+
+    for(int y = 0; y < 8; y++)
+    {
+        for(int x = 0; x < 8; x++)
+        {
+            blocks[y][x] = block::Air({static_cast<float>(position.x + x), static_cast<float>(position.y + y)});
+        }
+    }
 
     this->up_open = up_open;
     this->down_open = down_open;
@@ -17,6 +25,8 @@ void map::chunk::generate(bool up_open, bool down_open, bool left_open, bool rig
 
     float x = position.x;
     float y = position.y;
+
+    
 
     // UP WALL
     for(size_t i = 0; i < 8; i++)
@@ -81,21 +91,13 @@ void map::chunk::generate(bool up_open, bool down_open, bool left_open, bool rig
             }
         }
     }
+
+    generated = true;
 }
 
-bool map::chunk::isEmpty() const
+bool map::chunk::isGenerated() const
 {
-    for(size_t i = 0; i < 8; i++)
-    {
-        for(size_t j = 0; j < 8; j++)
-        {
-            if(blocks[i][j])
-            {
-                return false;
-            }
-        }
-    }
-    return true;
+    return generated;
 }
 
 void map::chunk::draw(sf::RenderWindow& window)
@@ -104,7 +106,8 @@ void map::chunk::draw(sf::RenderWindow& window)
     {
         for(int y = 0; y < 8; y++)
         {
-            window.draw(blocks[y][x].rectangle());
+            if(blocks[y][x])
+                window.draw(blocks[y][x].rectangle());
         }
     }
 }
@@ -145,6 +148,11 @@ sf::Vector2f map::chunk::getPosition() const
     return position;
 }
 
+void map::chunk::setPosition(sf::Vector2f new_position)
+{
+    position = new_position;
+}
+
 void map::chunk::fillWith(block block_)
 {
     for(int x = 0; x < 8; x++)
@@ -153,33 +161,19 @@ void map::chunk::fillWith(block block_)
         {
             blocks[y][x] = block_;
             blocks[y][x].teleport({position.x + x, position.y + y});
+            blocks[y][x].update();
         }
     }
 }
 
-bool map::chunk::collidesWith(entity& entity_)
+bool map::chunk::collidesWith(object& object_)
 {
-    auto entity_rect = entity_.rectangle();
-    entity_rect.setScale({1.0f, 1.0f});
-    entity_rect.setPosition(entity_.getPosition());
-
-    auto entity_bounds = entity_rect.getGlobalBounds();
 
     for(int x = 0; x < 8; x++)
     {
         for(int y = 0; y < 8; y++)
         {
-            auto block_rect = blocks[y][x].rectangle();
-            block_rect.setScale({1.0f, 1.0f});
-            block_rect.setPosition(blocks[y][x].getPosition());
-
-            auto block_bounds = block_rect.getGlobalBounds();
-
-            auto intersection = block_bounds.findIntersection(entity_bounds);
-            if (intersection.has_value() && intersection->size.x > 0 && intersection->size.y > 0)
-            {
-                return true;
-            }
+            if(blocks[y][x].collides(object_)) return true;
         }
     }
     return false;
@@ -191,7 +185,7 @@ map::map()
     {
         for(int y = 0; y < 128; y++)
         {
-            chunks[y][x].position = sf::Vector2f{static_cast<float>((x - 64) * 8), static_cast<float>((y - 64) * 8)};
+            chunks[y][x].setPosition(sf::Vector2f{static_cast<float>((x - 64) * 8), static_cast<float>((y - 64) * 8)});
         }
     }
 }
@@ -208,22 +202,22 @@ void map::generate()
         auto [x, y] = s.top();
         s.pop();
 
-        if (chunks[y][x].isUpOpen() && y > 0 && chunks[y - 1][x].isEmpty())
+        if (chunks[y][x].isUpOpen() && y > 0 && !chunks[y - 1][x].isGenerated())
         {
             chunks[y - 1][x].generate(rand()%2, true, rand()%2, rand()%2);
             s.push({x, y - 1});
         }
-        if (chunks[y][x].isDownOpen() && y < 127 && chunks[y + 1][x].isEmpty())
+        if (chunks[y][x].isDownOpen() && y < 127 && !chunks[y + 1][x].isGenerated())
         {
             chunks[y + 1][x].generate(true, rand()%2, rand()%2, rand()%2);
             s.push({x, y + 1});
         }
-        if (chunks[y][x].isLeftOpen() && x > 0 && chunks[y][x - 1].isEmpty())
+        if (chunks[y][x].isLeftOpen() && x > 0 && !chunks[y][x - 1].isGenerated())
         {
             chunks[y][x - 1].generate(rand()%2, rand()%2, rand()%2, true);
             s.push({x - 1, y});
         }
-        if (chunks[y][x].isRightOpen() && x < 127 && chunks[y][x + 1].isEmpty())
+        if (chunks[y][x].isRightOpen() && x < 127 && !chunks[y][x + 1].isGenerated())
         {
             chunks[y][x + 1].generate(rand()%2, rand()%2, true, rand()%2);
             s.push({x + 1, y});
@@ -234,7 +228,7 @@ void map::generate()
     {
         for(int y = 0; y < 128; y++)
         {
-            if(chunks[y][x].isEmpty())
+            if(!chunks[y][x].isGenerated())
             {
                 chunks[y][x].fillWith(block::Wall({0, 0}));
             }
@@ -262,19 +256,60 @@ void map::draw(sf::RenderWindow& window, sf::Vector2f position)
     }
 }
 
-bool map::collidesWith(entity& entity_)
+bool map::collidesWith(object& object_)
 {
-    int player_chunk_x = static_cast<int>(entity_.rectangle().getPosition().x / 8.0f) + 64;
-    int player_chunk_y = static_cast<int>(entity_.rectangle().getPosition().y / 8.0f) + 64;
+    int player_chunk_x = static_cast<int>(object_.rectangle().getPosition().x / 8.0f) + 64;
+    int player_chunk_y = static_cast<int>(object_.rectangle().getPosition().y / 8.0f) + 64;
 
 
-    for (int x = (player_chunk_x > 0) ? player_chunk_x - 1 : 0; x <= (player_chunk_x < 127) ? player_chunk_x + 1 : 128; x++)
+    int minX = std::max(0, player_chunk_x - 1);
+    int maxX = std::min(127, player_chunk_x + 1);
+
+    int minY = std::max(0, player_chunk_y - 1);
+    int maxY = std::min(127, player_chunk_y + 1);
+
+    for (int x = minX; x <= maxX; x++)
     {
-        for (int y = (player_chunk_y > 0) ? player_chunk_y - 1 : 0; y <= (player_chunk_y < 127) ? player_chunk_y + 1 : 128; y++)
+        for (int y = minY; y <= maxY; y++)
         {
-            if(chunks[y][x].collidesWith(entity_)) return true;
+            if(chunks[y][x].collidesWith(object_))
+                return true;
         }
     }
 
+
     return false;
+}
+
+#include <fstream>
+
+void map::exportToFile(std::string& destination)
+{
+    std::ofstream stream(destination);
+
+    if (!stream.is_open())
+        return;
+
+    // iterujemy PO BLOKACH, nie po chunkach
+    for (int globalY = 0; globalY < 128 * 8; globalY++)
+    {
+        for (int globalX = 0; globalX < 128 * 8; globalX++)
+        {
+            int chunkX = globalX / 8;
+            int chunkY = globalY / 8;
+
+            int localX = globalX % 8;
+            int localY = globalY % 8;
+
+            const block& b = chunks[chunkY][chunkX].blocks[localY][localX];
+
+            if (b)      // operator bool → ma teksturę → Wall
+                stream << '#';
+            else        // Air
+                stream << '.';
+        }
+        stream << '\n';
+    }
+
+    stream.close();
 }

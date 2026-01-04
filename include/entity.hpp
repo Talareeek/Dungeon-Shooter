@@ -2,39 +2,23 @@
 #define ENTITY_HPP
 
 #include "headers.hpp"
+#include "object.hpp"
 
-class entity
+class entity : public object
 {
-private:
-
-    sf::Vector2f position;
-    sf::Vector2f size;
-    sf::Texture* texture;
-
-    sf::RectangleShape rectangleshape;
+protected:
 
     //HP
-    uint8_t hp;
-    uint8_t max_hp;
+    uint8_t hp = 0;
+    uint8_t max_hp = 0;
 
 public:
 
     //CONSTRUCTROR
-    entity();
+    using object::object;
     entity(sf::Vector2f position, sf::Vector2f size, sf::Texture* texture, uint8_t hp, uint8_t max_hp);
 
     void operator=(const entity& other);
-
-    void updateRect();
-
-    sf::RectangleShape& rectangle();
-
-    //MOVEMENT
-    void move(sf::Vector2f delta);
-
-    void teleport(sf::Vector2f new_position);
-
-    sf::Vector2f getPosition() const;
 
     void setHP(uint8_t new_hp);
 

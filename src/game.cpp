@@ -29,6 +29,7 @@ game::game()
     if(!shoot_sound_buffer.loadFromFile("resources/sounds/shoot.mp3")) throw std::runtime_error("Cannot load shoot sound");
     if(!crosshair_texture.loadFromFile("resources/textures/crosshair.png")) throw std::runtime_error("Cannot load crosshair texture");
     if(!wall_texture.loadFromFile("resources/textures/wall.png")) throw std::runtime_error("Cannot load wall texture");
+    if(!wall_texture.loadFromFile("resources/textures/wall.png")) throw std::runtime_error("Cannot load air texture");
 
     floor_texture.setRepeated(true);
     crosshair_texture.setSmooth(false);
@@ -51,7 +52,7 @@ game::game()
     main_map->generate();
 
     //PLAYER SETUP
-    main_player = player(sf::Vector2f(4, 4), sf::Vector2f(16, 16), &player_texture, 100, 100);
+    main_player = player(sf::Vector2f(-10, -10), sf::Vector2f(16, 16), &player_texture, 100, 100);
 
     // TEXTURES CONFIGURATION
     
@@ -71,6 +72,9 @@ game::game()
     
 
     window.setMouseCursorVisible(false);
+
+    std::string dest = "map.txt";
+    main_map->exportToFile(dest);
 
 }
 
@@ -139,25 +143,13 @@ void game::render()
     window.draw(*floor);
     main_map->draw(window, main_player.getPosition());
     //PLAYER
-    main_player.updateRect();
+    main_player.update();
     window.draw(main_player.rectangle());
-
-    //BLOCKS
-    for(auto& a : blocks)
-    {
-        window.draw(a.rectangle());
-    }
 
     //BULLETS
     for(auto& a : bullets)
     {
         window.draw(a.rect);
-    }
-
-    //ENTITIES
-    for(auto& a : entities)
-    {
-        window.draw(a.rectangle());
     }
 
     
@@ -262,11 +254,6 @@ void game::update()
         sf::Vector2f normalized_move = sf::Vector2f(static_cast<float>(move.x) / length, static_cast<float>(move.y) / length);
         sf::Vector2f previous_position = main_player.getPosition();
         main_player.move(normalized_move * 5.0f * (1.0f / 60.0f));
-
-        if(main_map->collidesWith(main_player))
-        {
-            main_player.teleport(previous_position);
-        }
     }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F3) && std::chrono::steady_clock::now() - last_debug_toggle > debug_toggle_cooldown)       
@@ -275,24 +262,9 @@ void game::update()
         debug_mode = !debug_mode;
     }
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
-    {
-        blocks.push_back(block::Wall(main_player.getPosition()));
-    }
-
     for(auto& a : bullets)
     {
         a.update(1.0f / 60.0f);
-    }
-
-    for(auto& a : blocks)
-    {
-        a.update();
-    }
-
-    for(auto& a : entities)
-    {
-        a.updateRect();
     }
 }
 

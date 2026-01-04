@@ -3,7 +3,7 @@
 
 #include "headers.hpp"
 #include "block.hpp"
-#include "entity.hpp"
+#include "object.hpp"
 
 class map
 {
@@ -12,14 +12,17 @@ public:
     class chunk
     {
     private:
-        block blocks[8][8];
 
         sf::Vector2f position;
+
+        block blocks[8][8];        
 
         bool up_open = false;
         bool down_open = false;
         bool left_open = false;
         bool right_open = false;
+
+        bool generated = false;
 
     public:
 
@@ -31,7 +34,7 @@ public:
         
         void update();
 
-        bool isEmpty() const;
+        bool isGenerated() const;
 
         bool isUpOpen() const;
 
@@ -43,12 +46,16 @@ public:
 
         sf::Vector2f getPosition() const;
 
+        void setPosition(sf::Vector2f new_position);
+
         void fillWith(block block_);
 
-        bool collidesWith(entity& entity_);
+        bool collidesWith(object& object_);
 
-        friend class map;
+        friend map;
     };
+
+    
 
 private:
 
@@ -62,7 +69,9 @@ public:
 
     void draw(sf::RenderWindow& window, sf::Vector2f position);
 
-    bool collidesWith(entity& entity_);
+    bool collidesWith(object& object_);
+
+    void exportToFile(std::string& destination);
 };
 
 #endif // MAP_HPP

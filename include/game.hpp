@@ -71,6 +71,7 @@ private:
     sf::Texture spawner_texture;
     sf::Texture crosshair_texture;
     sf::Texture wall_texture;
+    sf::Texture air_texture;
 
     //FONTS
     sf::Font main_font;
@@ -92,8 +93,6 @@ private:
     map* main_map;
 
     std::vector<bullet> bullets;
-    std::vector<block> blocks;
-    std::vector<entity> entities;
 
     //DEBUG MENU
     std::chrono::steady_clock::time_point last_debug_toggle;

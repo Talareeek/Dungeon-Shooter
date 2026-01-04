@@ -17,6 +17,7 @@
 #include <vector>
 #include <stack>
 #include <conio.h>
+#include <fstream>
 
 // ===== SFML =====
 #include <SFML/Audio.hpp>
