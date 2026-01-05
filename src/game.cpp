@@ -262,6 +262,12 @@ void game::update()
         debug_mode = !debug_mode;
     }
 
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F2) && std::chrono::steady_clock::now() - last_screenshoot > screenshoot_cooldown)
+    {
+        last_screenshoot = std::chrono::steady_clock::now();
+        takeScreenshoot();
+    }
+
     for(auto& a : bullets)
     {
         a.update(1.0f / 60.0f);
@@ -363,4 +369,16 @@ void game::player::changeWeapon(int delta)
 game::player::WEAPON game::player::getCurrentWeapon() const
 {
     return current_weapon;
+}
+
+void game::takeScreenshoot()
+{
+    sf::Vector2u size = window.getSize();
+    sf::Texture texture(size);
+
+    texture.update(window);
+
+    sf::Image screenshoot = texture.copyToImage();
+
+    screenshoot.saveToFile(std::to_string(time(nullptr)) + ".png");
 }

@@ -105,15 +105,22 @@ private:
 
     block get_block_from_ip(unsigned int ip);
 
-public:
+    void takeScreenshoot();
 
-    game();
+    std::chrono::steady_clock::time_point last_screenshoot;
+    std::chrono::milliseconds screenshoot_cooldown{500};
 
     void handleEvents();
 
     void render();
 
     void update();
+
+public:
+
+    game();
+
+    
 
     void run();
 
