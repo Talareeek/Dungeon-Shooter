@@ -6,6 +6,7 @@
 #include "entity.hpp"
 #include "map.hpp"
 #include "block.hpp"
+#include "chunk.hpp"
 
 class game
 {

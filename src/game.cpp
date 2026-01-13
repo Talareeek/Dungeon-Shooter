@@ -48,11 +48,13 @@ game::game()
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     // MAP GENERATION
-    main_map = new map;
+    main_map = new map();
     main_map->generate();
 
+
+
     //PLAYER SETUP
-    main_player = player(sf::Vector2f(-10, -10), sf::Vector2f(16, 16), &player_texture, 100, 100);
+    main_player = player(sf::Vector2f(4, 4), sf::Vector2f(1, 1), &player_texture, 100, 100);
 
     // TEXTURES CONFIGURATION
     
@@ -72,10 +74,6 @@ game::game()
     
 
     window.setMouseCursorVisible(false);
-
-    std::string dest = "map.txt";
-    main_map->exportToFile(dest);
-
 }
 
 void game::handleEvents()
@@ -254,6 +252,7 @@ void game::update()
         sf::Vector2f normalized_move = sf::Vector2f(static_cast<float>(move.x) / length, static_cast<float>(move.y) / length);
         sf::Vector2f previous_position = main_player.getPosition();
         main_player.move(normalized_move * 5.0f * (1.0f / 60.0f));
+        if(main_map->collides(main_player)) main_player.teleport(previous_position);
     }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F3) && std::chrono::steady_clock::now() - last_debug_toggle > debug_toggle_cooldown)       
@@ -380,5 +379,5 @@ void game::takeScreenshoot()
 
     sf::Image screenshoot = texture.copyToImage();
 
-    screenshoot.saveToFile(std::to_string(time(nullptr)) + ".png");
+    if(!screenshoot.saveToFile(std::to_string(time(nullptr)) + ".png")) return;
 }

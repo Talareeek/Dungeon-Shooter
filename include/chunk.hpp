@@ -21,7 +21,11 @@ private:
 
 public:
 
+    chunk();
+
     chunk(sf::Vector2f position);
+
+    void setPosition(sf::Vector2f position);
 
     void generate(bool up, bool down, bool left, bool right);
 
@@ -35,9 +39,11 @@ public:
 
     bool isGenerated();
 
-    bool collides(object object_);
+    bool collides(object& object_);
 
-    void update();     
+    void update();  
+    
+    void draw(sf::RenderWindow& window);
 };
 
 #endif //CHUNK HPP

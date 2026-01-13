@@ -8,7 +8,7 @@ class object
 protected:
 
     sf::Vector2f position{0.0f, 0.0f};
-    sf::Vector2f size{16.0f, 16.0f};
+    sf::Vector2f size{1.0f, 1.0f};
     sf::Texture* texture = nullptr;
 
     sf::RectangleShape rectangleshape;
@@ -17,7 +17,6 @@ public:
 
     object();
     object(sf::Vector2f position, sf::Vector2f size, sf::Texture* texture);
-    object(object&& other) noexcept;
 
     void operator=(const object& other);
 
@@ -36,6 +35,9 @@ public:
     explicit operator bool() const;
 
     bool collides(object& other);
+
+    //OPERATORS
+    bool operator==(const object& other) const;
 
 };
 

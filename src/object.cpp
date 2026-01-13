@@ -19,33 +19,20 @@ object::object(sf::Vector2f position, sf::Vector2f size, sf::Texture* texture) :
     rectangleshape.setTexture(texture);
     rectangleshape.setTextureRect({{0, 0}, {16, 16}});
 }
-object::object(object&& other) noexcept
-{
-    position = other.position;
-    size = other.size;
-    texture = other.texture;
-
-    rectangleshape.setSize(size);
-    rectangleshape.setScale({unit_size / size.x, unit_size / size.y});
-    rectangleshape.setTexture(texture);
-    rectangleshape.setTextureRect({{0, 0}, {16, 16}});
-}
 
 void object::operator=(const object& other)
 {
-    position = other.position;
     size = other.size;
+    position = other.position;
     texture = other.texture;
-
-    rectangleshape.setSize(size);
-    rectangleshape.setScale({unit_size / size.x, unit_size / size.y});
-    rectangleshape.setTexture(texture);
-    rectangleshape.setTextureRect({{0, 0}, {16, 16}});
+    update();
 }
 
 void object::update()
 {
+    rectangleshape.setSize(size);
     rectangleshape.setScale({unit_size / size.x, unit_size / size.y});
+    rectangleshape.setTexture(texture);
     rectangleshape.setPosition({position.x * unit_size, position.y * unit_size});
 }
 
@@ -87,4 +74,9 @@ bool object::collides(object& other)
 
     std::optional<sf::FloatRect> intersection = this_rect.findIntersection(other_rect);
     return intersection.has_value();
+}
+
+bool object::operator==(const object& other) const
+{
+    return (position == other.position && size == other.size && texture == other.texture);
 }
