@@ -7,29 +7,11 @@
 #include "map.hpp"
 #include "block.hpp"
 #include "chunk.hpp"
+#include "bullet.hpp"
 
 class game
 {
 private:
-
-    struct bullet
-    {
-        float scale;
-        sf::Texture* texture;
-
-        sf::Vector2f position;
-        uint8_t damage;
-
-        sf::RectangleShape rect;
-
-        float speed;
-
-        float direction_angle;
-
-        bullet(sf::Vector2f start_pos, sf::Texture* texture, float scale, uint8_t damage_value,  float direction_angle, float speed);
-
-        void update(float delta_time);
-    };
 
     //PLAYER
     class player : public entity
@@ -73,6 +55,7 @@ private:
     sf::Texture crosshair_texture;
     sf::Texture wall_texture;
     sf::Texture air_texture;
+    sf::Texture vignette_texture;
 
     //FONTS
     sf::Font main_font;
@@ -80,6 +63,7 @@ private:
     //SPRITES
     std::optional<sf::Sprite> floor;
     std::optional<sf::Sprite> crosshair;
+    std::optional<sf::Sprite> vignette;
 
     //SOUNDS
     sf::SoundBuffer shoot_sound_buffer;

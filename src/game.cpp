@@ -29,7 +29,7 @@ game::game()
     if(!shoot_sound_buffer.loadFromFile("resources/sounds/shoot.mp3")) throw std::runtime_error("Cannot load shoot sound");
     if(!crosshair_texture.loadFromFile("resources/textures/crosshair.png")) throw std::runtime_error("Cannot load crosshair texture");
     if(!wall_texture.loadFromFile("resources/textures/wall.png")) throw std::runtime_error("Cannot load wall texture");
-    if(!wall_texture.loadFromFile("resources/textures/wall.png")) throw std::runtime_error("Cannot load air texture");
+    if(!vignette_texture.loadFromFile("resources/textures/vignette.png")) throw std::runtime_error("Cannot load vignette texture");
 
     floor_texture.setRepeated(true);
     crosshair_texture.setSmooth(false);
@@ -64,6 +64,11 @@ game::game()
     crosshair.emplace(crosshair_texture);
     crosshair->setScale(sf::Vector2f(unit_size / 16.0f, unit_size / 16.0f));
     crosshair->setOrigin(sf::Vector2f(crosshair_texture.getSize().x / 2.0f, crosshair_texture.getSize().y / 2.0f));
+
+    vignette.emplace(vignette_texture);
+    vignette->setScale({window.getSize().y / static_cast<float>(vignette_texture.getSize().y), window.getSize().y / static_cast<float>(vignette_texture.getSize().y)});
+    vignette->setOrigin({vignette_texture.getSize().x / 2, vignette_texture.getSize().y / 2});
+    vignette->setPosition({window.getSize().x / 2, window.getSize().y / 2});
 
     // SETUP SHOOT SOUND
     shoot_sound.emplace(shoot_sound_buffer);
@@ -113,10 +118,9 @@ void game::handleEvents()
                     (
                     main_player.getPosition(),
                     &bullet_texture,
-                    static_cast<float>(unit_size) / 16.0f,
-                    10, // damage value
+                    10,
                     angle,
-                    5.0f // speed
+                    1.0f // speed
                     )
                 );
             }
@@ -131,8 +135,8 @@ void game::render()
     //PLAYER POV
     sf::View player_view(
     sf::Vector2f(
-        main_player.getPosition().x * unit_size,
-        main_player.getPosition().y * unit_size
+        (main_player.getPosition().x + 0.5f) * unit_size,
+        (main_player.getPosition().y + 0.5f) * unit_size
     ),
     sf::Vector2f(window.getSize())
     );
@@ -147,7 +151,7 @@ void game::render()
     //BULLETS
     for(auto& a : bullets)
     {
-        window.draw(a.rect);
+        window.draw(a.rectangle());
     }
 
     
@@ -156,6 +160,8 @@ void game::render()
 
     sf::View gui_view(sf::FloatRect({0.f, 0.f}, {static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y)}));
     window.setView(gui_view);
+
+    window.draw(*vignette);
 
     if(!debug_mode)
     {
@@ -267,9 +273,14 @@ void game::update()
         takeScreenshoot();
     }
 
-    for(auto& a : bullets)
-    {
-        a.update(1.0f / 60.0f);
+    for(auto it = bullets.begin(); it != bullets.end(); )
+    {   
+        it->update();
+        if(main_map->collides(*it))
+        {
+            it = bullets.erase(it);
+        }
+        else it++;
     }
 }
 
@@ -289,31 +300,6 @@ void game::run()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); //60 FPS
     }
-}
-
-// BULLET
-
-game::bullet::bullet(sf::Vector2f start_pos, sf::Texture* texture, float scale, uint8_t damage_value,  float direction_angle, float speed) : texture{texture}, scale{scale}, damage{damage_value}, direction_angle{direction_angle}, speed{speed}
-{
-    rect.setSize({8, 8});
-    rect.setTexture(texture);
-    rect.setTextureRect(sf::IntRect({0, 0}, {8, 8}));
-    rect.setScale(sf::Vector2f(scale, scale));
-
-    sf::Angle angle = sf::radians(direction_angle);
-
-    rect.setRotation(angle);
-
-    position = start_pos;
-    rect.setPosition({position.x * static_cast<float>(unit_size), position.y * static_cast<float>(unit_size)});
-}
-
-void game::bullet::update(float delta_time)
-{
-    position.x += std::cos(direction_angle) * speed * delta_time;
-    position.y += std::sin(direction_angle) * speed * delta_time;
-
-    rect.setPosition({position.x * static_cast<float>(unit_size), position.y * static_cast<float>(unit_size)});
 }
 
 // PLAYER
