@@ -67,8 +67,8 @@ game::game()
 
     vignette.emplace(vignette_texture);
     vignette->setScale({window.getSize().y / static_cast<float>(vignette_texture.getSize().y), window.getSize().y / static_cast<float>(vignette_texture.getSize().y)});
-    vignette->setOrigin({vignette_texture.getSize().x / 2, vignette_texture.getSize().y / 2});
-    vignette->setPosition({window.getSize().x / 2, window.getSize().y / 2});
+    vignette->setOrigin({vignette_texture.getSize().x / 2.0f, vignette_texture.getSize().y / 2.0f});
+    vignette->setPosition({window.getSize().x / 2.0f, window.getSize().y / 2.0f});
 
     // SETUP SHOOT SOUND
     shoot_sound.emplace(shoot_sound_buffer);

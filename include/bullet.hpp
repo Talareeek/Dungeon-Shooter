@@ -20,14 +20,3 @@ public:
 };
 
 #endif // BULLET_HPP
-
-/*
-    struct bullet
-
-        
-
-        bullet(sf::Vector2f start_pos, sf::Texture* texture, float scale, uint8_t damage_value,  float direction_angle, float speed);
-
-        void update(float delta_time);
-    };
-*/
