@@ -7,13 +7,15 @@ class item
 {
 private:
 
-    std::string name;
-    size_t max_amount;
-    size_t amount;
+    std::string name = "";
+    size_t max_amount = 0;
+    size_t amount = 0;
     
-    sf::Texture* texture;
+    sf::Texture* texture = nullptr;
 
 public:
+
+    item();
 
     item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture);
 

@@ -8,41 +8,11 @@
 #include "block.hpp"
 #include "chunk.hpp"
 #include "bullet.hpp"
+#include "player.hpp"
 
 class game
 {
 private:
-
-    //PLAYER
-    class player : public entity
-    {
-    public:
-
-        enum class WEAPON
-        {
-            RIFLE,
-            SHOTGUN,
-            SNIPER
-        };
-
-    private:
-
-        WEAPON current_weapon = WEAPON::RIFLE;
-
-    public:        
-
-        using entity::entity;
-
-        void operator=(const player& other);
-
-        void changeWeapon(WEAPON new_weapon);
-
-        void changeWeapon(int delta);
-
-        WEAPON getCurrentWeapon() const;
-    };
-
-
     //WINDOW
     sf::RenderWindow window;
 

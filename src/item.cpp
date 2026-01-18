@@ -1,6 +1,11 @@
 #include "../include/headers.hpp"
 #include "../include/item.hpp"
 
+item::item()
+{
+    
+}
+
 
 item::item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture) : name{name}, max_amount{max_amount}, amount{amount}, texture{texture}
 {
