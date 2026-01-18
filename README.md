@@ -12,13 +12,14 @@ Libraries:
 =
 SFML: 3.0.2: https://www.sfml-dev.org/documentation/3.0.2/
 
-
 =
 Compilation:
 =
 (Linux)
-<img src="resources/textures/tux" height="50" alt="Tux pixelart">
+<img src="resources/textures/tux.png" height="50" alt="Tux pixelart">
+
 -g++
-<pre>```bash g++ src/*.cpp -o "Dungeon Shooter" -lsfml-graphics -lsfml-window -lsfml-system```</pre>
+```bash g++ src/*.cpp -o "Dungeon Shooter" -lsfml-graphics -lsfml-window -lsfml-system```
+
 -clang++
-<pre>```bash clang++ src/*.cpp -o "Dungeon Shooter" -lsfml-graphics -lsfml-window -lsfml-system```</pre>
+```bash clang++ src/*.cpp -o "Dungeon Shooter" -lsfml-graphics -lsfml-window -lsfml-system```
