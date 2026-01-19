@@ -13,7 +13,7 @@ public:
 
     inventory();
 
-    void pick_up();
+    void pick_up(item);
 };
 
 #endif // INVENTORY_HPP

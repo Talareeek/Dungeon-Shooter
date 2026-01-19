@@ -65,3 +65,31 @@ void game::takeScreenshoot()
 
     if(!screenshoot.saveToFile(std::to_string(time(nullptr)) + ".png")) return;
 }
+
+bool player::canRun()
+{
+    return stamina > 0.0f;
+}
+
+void player::increaseStamina(float delta)
+{
+    if((stamina + delta) <= stamina_limit)
+    {
+        stamina += delta;
+    }
+    else stamina = stamina_limit;
+}
+
+void player::decreaseStamina(float delta)
+{
+    if((stamina - delta) >= 0)
+    {
+        stamina -= delta;
+    }
+    else stamina = 0.0f;
+}
+
+float player::Stamina()
+{
+    return stamina;
+}

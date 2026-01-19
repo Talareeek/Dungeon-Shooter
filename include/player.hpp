@@ -19,6 +19,9 @@
 
         WEAPON current_weapon = WEAPON::RIFLE;
 
+        float stamina = 5.0f;
+        float stamina_limit = 5.0f;
+
     public:        
 
         using entity::entity;
@@ -30,6 +33,14 @@
         void changeWeapon(int delta);
 
         WEAPON getCurrentWeapon() const;
+
+        bool canRun();
+
+        void increaseStamina(float delta);
+
+        void decreaseStamina(float delta);
+
+        float Stamina();
     };
 
 #endif // PLAYER_HPP

@@ -120,7 +120,7 @@ void game::handleEvents()
                     &bullet_texture,
                     10,
                     angle,
-                    1.0f // speed
+                    10.0f // speed
                     )
                 );
             }
@@ -206,7 +206,13 @@ void game::render()
         std::string debug_string = 
         "Unit size(px per tile): " + std::to_string(unit_size) + '\n'
         + "XY: " + std::to_string(main_player.getPosition().x) + " / " + std::to_string(main_player.getPosition().y) + '\n'
-        + "Bullets: " + std::to_string(bullets.size());
+        + "Bullets: " + std::to_string(bullets.size()) + '\n'
+        + "Stamina: " + std::to_string(main_player.Stamina()) + '\n';
+
+        for(auto& a : bullets)
+        {
+            debug_string += "Bullet at: " + std::to_string(a.getPosition().x) + ' ' + std::to_string(a.getPosition().y) + '\n';
+        }
 
         sf::Text debug_text(main_font, debug_string, static_cast<unsigned int>(window.getSize().y / 54));
 
@@ -219,6 +225,8 @@ void game::render()
     }
 
     window.display();
+
+    window.setView(player_view);
 }
 
 
@@ -232,6 +240,7 @@ void game::update()
     //RANDOM TICK
     random_tick = static_cast<bool>(random_tick_dist(rnd));
 
+    bool running = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl) && main_player.canRun();
 
     sf::Vector2i move;
 
@@ -254,11 +263,20 @@ void game::update()
 
     if(move.x != 0 || move.y != 0)
     {
+        float speed = running ? 8.0f : 5.0f;
+
         float length = std::sqrt(static_cast<float>(move.x * move.x + move.y * move.y));
         sf::Vector2f normalized_move = sf::Vector2f(static_cast<float>(move.x) / length, static_cast<float>(move.y) / length);
         sf::Vector2f previous_position = main_player.getPosition();
-        main_player.move(normalized_move * 5.0f * (1.0f / 60.0f));
+        main_player.move(normalized_move * speed * (1.0f / 60.0f));
         if(main_map->collides(main_player)) main_player.teleport(previous_position);
+    }
+
+    if(running) main_player.decreaseStamina(1.0f/60.0f);
+    else 
+    {
+        if(!(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)))
+            main_player.increaseStamina(1.0f/60.0f);
     }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F3) && std::chrono::steady_clock::now() - last_debug_toggle > debug_toggle_cooldown)       
