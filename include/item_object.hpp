@@ -10,6 +10,13 @@ private:
 
 public:
 
+    item_object();
+
+    item_object(item&& other_item, object&& other_object);
+
+    using item::operator=;
+    using object::operator=;
+
     item asItem();
 
     object asObject();

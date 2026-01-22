@@ -1,2 +1,2 @@
-g++ src/main.cpp src/game.cpp src/entity.cpp src/player.cpp src/block.cpp src/map.cpp src/object.cpp src/chunk.cpp src/bullet.cpp -o "Dungeon Shooter.exe" -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -std=c++17
+g++ src/main.cpp src/game.cpp src/entity.cpp src/player.cpp src/block.cpp src/map.cpp src/object.cpp src/chunk.cpp src/bullet.cpp src/item.cpp src/item_object.cpp src/inventory.cpp -o "Dungeon Shooter.exe" -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -std=c++17
 pause

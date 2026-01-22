@@ -19,6 +19,8 @@ public:
 
     item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture);
 
+    item& operator=(const item& other);
+
     std::string getName();
 
     size_t getMaxAmount();
@@ -26,6 +28,10 @@ public:
     size_t getAmount();
 
     sf::Texture* getTexture();
+
+    item increaseAmountWithLeftover(size_t delta);
+
+    size_t decreaseAmountWithLeftover(size_t delta);
 
     void changeAmount(long long delta);
 

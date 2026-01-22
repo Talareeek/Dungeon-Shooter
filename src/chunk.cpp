@@ -1,4 +1,5 @@
 #include "../include/chunk.hpp"
+#include "../include/item_object.hpp"
 
 extern std::vector<sf::Texture*> game_textures;
 

@@ -13,7 +13,13 @@ public:
 
     inventory();
 
-    void pick_up(item);
+    item pickUpWithLeftover(item& to_pickup);
+
+    size_t getAmountOf(std::string item_name);
+
+    bool decreaseAmountOf(std::string item_name, size_t by);
+
+    void draw(sf::RenderWindow& window);
 };
 
 #endif // INVENTORY_HPP

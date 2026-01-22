@@ -2,25 +2,17 @@
 #define PLAYER_HPP
 
 #include "entity.hpp"
+#include "inventory.hpp"
 
 //PLAYER
     class player : public entity
     {
-    public:
-
-        enum class WEAPON
-        {
-            RIFLE,
-            SHOTGUN,
-            SNIPER
-        };
-
     private:
-
-        WEAPON current_weapon = WEAPON::RIFLE;
 
         float stamina = 5.0f;
         float stamina_limit = 5.0f;
+
+        inventory inventory_;
 
     public:        
 
@@ -28,17 +20,13 @@
 
         void operator=(const player& other);
 
-        void changeWeapon(WEAPON new_weapon);
-
-        void changeWeapon(int delta);
-
-        WEAPON getCurrentWeapon() const;
-
         bool canRun();
 
         void increaseStamina(float delta);
 
         void decreaseStamina(float delta);
+
+        inventory& getInventory();
 
         float Stamina();
     };

@@ -4,12 +4,28 @@
 #include "..\include\entity.hpp"
 #include "..\include\block.hpp"
 #include "..\include\map.hpp"
+#include "..\include\item_object.hpp"
+
 
 unsigned int unit_size;
 bool random_tick = false;
 extern bool dev_mode;
 
+sf::Font main_font;
+
 std::vector<sf::Texture*> game_textures;
+
+sf::Texture lobby_background_texture;
+sf::Texture player_texture;
+sf::Texture bullet_texture;
+sf::Texture floor_texture;
+sf::Texture spawner_texture;
+sf::Texture crosshair_texture;
+sf::Texture wall_texture;
+sf::Texture air_texture;
+sf::Texture vignette_texture;
+
+sf::Texture slot_texture;
 
 game::game()
 {
@@ -30,6 +46,8 @@ game::game()
     if(!crosshair_texture.loadFromFile("resources/textures/crosshair.png")) throw std::runtime_error("Cannot load crosshair texture");
     if(!wall_texture.loadFromFile("resources/textures/wall.png")) throw std::runtime_error("Cannot load wall texture");
     if(!vignette_texture.loadFromFile("resources/textures/vignette.png")) throw std::runtime_error("Cannot load vignette texture");
+
+    if(!slot_texture.loadFromFile("resources/textures/slot.png")) throw std::runtime_error("Cannot load slot texture");
 
     floor_texture.setRepeated(true);
     crosshair_texture.setSmooth(false);
@@ -76,7 +94,7 @@ game::game()
     // Load and configure player texture (use 16x16 tile)
     player_texture.setSmooth(false); // keep pixel-art crisp
 
-    
+    test_item = item_object(item(std::string("Bullet"), 64, 64, &bullet_texture), object(sf::Vector2f({10.0f, 0.0f}), sf::Vector2f({1.0f, 1.0f}), &bullet_texture));
 
     window.setMouseCursorVisible(false);
 }
@@ -89,16 +107,11 @@ void game::handleEvents()
         {
             window.close();
         }
-        if(event->is<sf::Event::MouseWheelScrolled>())
-        {
-            auto wheel_event = event->getIf<sf::Event::MouseWheelScrolled>();
-            float delta = wheel_event->delta;
-            main_player.changeWeapon(static_cast<int>(delta));
-        }
+
         if(event->is<sf::Event::MouseButtonPressed>())
         {
             auto mouse_event = event->getIf<sf::Event::MouseButtonPressed>();
-            if(mouse_event->button == sf::Mouse::Button::Left)
+            if(mouse_event->button == sf::Mouse::Button::Left && main_player.getInventory().getAmountOf("Bullet") > 0)
             {
                 shoot_sound->play();
 
@@ -123,6 +136,8 @@ void game::handleEvents()
                     10.0f // speed
                     )
                 );
+
+                if(!main_player.getInventory().decreaseAmountOf("Bullet", 1)) throw std::runtime_error("Something went wrong :(");
             }
         }
     }
@@ -144,6 +159,9 @@ void game::render()
     window.setView(player_view);
     window.draw(*floor);
     main_map->draw(window, main_player.getPosition());
+
+    if(test_item.getAmount()) window.draw(test_item.rectangle());
+
     //PLAYER
     main_player.update();
     window.draw(main_player.rectangle());
@@ -163,6 +181,12 @@ void game::render()
 
     window.draw(*vignette);
 
+    //TEMPORARY
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E))
+    {
+        main_player.getInventory().draw(window);
+    }
+
     if(!debug_mode)
     {
 
@@ -171,28 +195,6 @@ void game::render()
         auto bounds = health_text.getLocalBounds();
         health_text.setPosition({10.f, 10.f});
         window.draw(health_text);
-    
-
-        //WEAPON TEXT
-        std::string weapon_str;
-        switch(main_player.getCurrentWeapon())
-        {
-            case player::WEAPON::RIFLE:
-                weapon_str = "RIFLE";
-                break;
-            case player::WEAPON::SHOTGUN:
-                weapon_str = "SHOTGUN";
-                break;
-            case player::WEAPON::SNIPER:
-                weapon_str = "SNIPER";
-                break;
-        }
-
-        sf::Text weapon_text(main_font, weapon_str, static_cast<unsigned int>(window.getSize().y / 9));
-        weapon_text.setFillColor(sf::Color::White);
-        weapon_text.setOrigin(sf::Vector2f(weapon_text.getLocalBounds().size.x, 0.f)); //right top origin
-        weapon_text.setPosition({static_cast<float>(window.getSize().x - 10), static_cast<float>((window.getSize().y / 9) * 8)});
-        window.draw(weapon_text);
 
         // CROSSHAIR
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
@@ -299,6 +301,11 @@ void game::update()
             it = bullets.erase(it);
         }
         else it++;
+    }
+
+    if(test_item.collides(main_player))
+    {
+        test_item = main_player.getInventory().pickUpWithLeftover(test_item);
     }
 }
 

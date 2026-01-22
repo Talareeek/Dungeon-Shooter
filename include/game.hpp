@@ -9,6 +9,7 @@
 #include "chunk.hpp"
 #include "bullet.hpp"
 #include "player.hpp"
+#include "item_object.hpp"
 
 class game
 {
@@ -17,18 +18,6 @@ private:
     sf::RenderWindow window;
 
     //TEXTURES
-    sf::Texture lobby_background_texture;
-    sf::Texture player_texture;
-    sf::Texture bullet_texture;
-    sf::Texture floor_texture;
-    sf::Texture spawner_texture;
-    sf::Texture crosshair_texture;
-    sf::Texture wall_texture;
-    sf::Texture air_texture;
-    sf::Texture vignette_texture;
-
-    //FONTS
-    sf::Font main_font;
 
     //SPRITES
     std::optional<sf::Sprite> floor;
@@ -48,6 +37,8 @@ private:
     map* main_map;
 
     std::vector<bullet> bullets;
+
+    item_object test_item;
 
     //DEBUG MENU
     std::chrono::steady_clock::time_point last_debug_toggle;
