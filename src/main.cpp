@@ -2,10 +2,11 @@
 
 #include "..\include\game.hpp"
 
+game dungeon_shooter_game;
+
 int main()
 {
     
-    game dungeon_shooter_game;
     dungeon_shooter_game.run(); 
 
 }

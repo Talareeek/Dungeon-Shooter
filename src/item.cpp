@@ -7,7 +7,7 @@ item::item()
 }
 
 
-item::item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture) : name{name}, max_amount{max_amount}, amount{amount}, texture{texture}
+item::item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture, std::function <void(object&)> onAttack, std::function <void(object&)> onUse) : name{name}, max_amount{max_amount}, amount{amount}, texture{texture}, onAttack{onAttack}, onUse{onUse}
 {
 
 }
@@ -94,4 +94,14 @@ void item::setAmount(size_t amount)
     {
         this->amount = amount;
     }
+}
+
+void item::attackTriggered(object& target)
+{
+    onAttack(target);
+}
+
+void item::useTriggered(object& target)
+{
+    onUse(target);
 }

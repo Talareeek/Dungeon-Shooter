@@ -38,6 +38,7 @@ private:
 
     std::vector<bullet> bullets;
 
+    item_object pistol_item;
     item_object test_item;
 
     //DEBUG MENU
@@ -64,11 +65,28 @@ private:
 
 public:
 
+    sf::Texture lobby_background_texture;
+    sf::Texture player_texture;
+    sf::Texture bullet_texture;
+    sf::Texture floor_texture;
+    sf::Texture spawner_texture;
+    sf::Texture crosshair_texture;
+    sf::Texture wall_texture;
+    sf::Texture air_texture;
+    sf::Texture vignette_texture;
+    sf::Texture pistol_texture;
+    sf::Texture slot_texture;
+    sf::Texture selected_slot_texture;
+
     game();
 
     
 
     void run();
+
+    player& getPlayer();
+
+    std::vector<bullet>& getBullets();
 
     friend class block;
     friend class map;

@@ -7,11 +7,13 @@
 
 #include "../include/inventory.hpp"
 
-extern sf::Texture slot_texture;
+#include "../include/game.hpp"
 
 extern sf::Font main_font;
 
 extern unsigned int unit_size;
+
+extern game dungeon_shooter_game;
 
 inventory::inventory()
 {
@@ -88,7 +90,7 @@ void inventory::draw(sf::RenderWindow& window)
     sf::RectangleShape slot({1.0f, 1.0f});
     slot.setScale({static_cast<float>(unit_size), static_cast<float>(unit_size)});
 
-    slot.setTexture(&slot_texture);
+    slot.setTexture(&dungeon_shooter_game.slot_texture);
 
     slot.setTextureRect({{0, 0}, {16, 16}});
 
@@ -100,14 +102,22 @@ void inventory::draw(sf::RenderWindow& window)
     {
         for(int x = 0; x < 10; x++)
         {
+            slot.setTexture(&dungeon_shooter_game.slot_texture);
+
             slot.setPosition({static_cast<float>(start_x + unit_size * x), static_cast<float>(start_y + unit_size * y)});
             window.draw(slot);
+
+            if(x == selected_x && y == selected_y)
+            {
+                slot.setTexture(&dungeon_shooter_game.selected_slot_texture);
+                window.draw(slot);
+            }
             
             if(slots[y][x].getName() != "" && slots[y][x].getAmount() != 0)
             {
                 slot.setTexture(slots[y][x].getTexture());
                 window.draw(slot);
-                slot.setTexture(&slot_texture);
+                
 
                 text.setPosition({static_cast<float>(start_x + unit_size * (x + 1/16)), static_cast<float>(start_y + unit_size * (y - 1/16))});
                 text.setString(std::to_string(slots[y][x].getAmount()));
@@ -115,4 +125,39 @@ void inventory::draw(sf::RenderWindow& window)
             }
         }
     }
+}
+
+void inventory::changeSelectedX(int delta)
+{
+    selected_x = (selected_x + delta + 10) % 10;
+}
+
+void inventory::changeSelectedY(int delta)
+{
+    selected_y = (selected_y + delta + 4) % 4;
+}
+
+int inventory::getSelectedX()
+{
+    return selected_x;
+}
+
+int inventory::getSelectedY()
+{
+    return selected_y;
+}
+
+void inventory::attackTriggered(object& target)
+{
+    slots[selected_y][selected_x].attackTriggered(target);
+}
+
+void inventory::useTriggered(object& target)
+{
+    slots[selected_y][selected_x].useTriggered(target);
+}
+
+item& inventory::getSelected()
+{
+    return slots[selected_y][selected_x];
 }

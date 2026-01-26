@@ -2,12 +2,16 @@
 #define INVENTORY_HPP
 
 #include "item.hpp"
+#include "object.hpp"
 
 class inventory
 {
 private:
 
     item slots[4][10];
+
+    int selected_x = 0;
+    int selected_y = 0;
 
 public:
 
@@ -20,6 +24,20 @@ public:
     bool decreaseAmountOf(std::string item_name, size_t by);
 
     void draw(sf::RenderWindow& window);
+
+    void changeSelectedX(int delta);
+
+    void changeSelectedY(int delta);
+
+    int getSelectedX();
+
+    int getSelectedY();
+
+    void attackTriggered(object& target);
+
+    void useTriggered(object& target);
+
+    item& getSelected();
 };
 
 #endif // INVENTORY_HPP

@@ -15,17 +15,7 @@ sf::Font main_font;
 
 std::vector<sf::Texture*> game_textures;
 
-sf::Texture lobby_background_texture;
-sf::Texture player_texture;
-sf::Texture bullet_texture;
-sf::Texture floor_texture;
-sf::Texture spawner_texture;
-sf::Texture crosshair_texture;
-sf::Texture wall_texture;
-sf::Texture air_texture;
-sf::Texture vignette_texture;
-
-sf::Texture slot_texture;
+extern game dungeon_shooter_game;
 
 game::game()
 {
@@ -46,8 +36,10 @@ game::game()
     if(!crosshair_texture.loadFromFile("resources/textures/crosshair.png")) throw std::runtime_error("Cannot load crosshair texture");
     if(!wall_texture.loadFromFile("resources/textures/wall.png")) throw std::runtime_error("Cannot load wall texture");
     if(!vignette_texture.loadFromFile("resources/textures/vignette.png")) throw std::runtime_error("Cannot load vignette texture");
+    if(!pistol_texture.loadFromFile("resources/textures/pistol.png"));
 
     if(!slot_texture.loadFromFile("resources/textures/slot.png")) throw std::runtime_error("Cannot load slot texture");
+    if(!selected_slot_texture.loadFromFile("resources/textures/selected_slot.png")) throw std::runtime_error("Cannot load sellected slot texture");
 
     floor_texture.setRepeated(true);
     crosshair_texture.setSmooth(false);
@@ -94,6 +86,27 @@ game::game()
     // Load and configure player texture (use 16x16 tile)
     player_texture.setSmooth(false); // keep pixel-art crisp
 
+    pistol_item = item_object(item(std::string("Pistol"), 1, 1, &pistol_texture,
+
+        [](object& target)
+        {
+            dungeon_shooter_game.bullets.push_back
+            (
+                bullet
+                (
+                    dungeon_shooter_game.getPlayer().getPosition(),
+                    &dungeon_shooter_game.bullet_texture,
+                    10,
+                    0,
+                    10.0f // speed
+                )
+            );
+        }
+    ),
+
+    object({1.0f, 1.0f}, {1.0f, 1.0f}, &pistol_texture)
+
+    );
     test_item = item_object(item(std::string("Bullet"), 64, 64, &bullet_texture), object(sf::Vector2f({10.0f, 0.0f}), sf::Vector2f({1.0f, 1.0f}), &bullet_texture));
 
     window.setMouseCursorVisible(false);
@@ -111,7 +124,25 @@ void game::handleEvents()
         if(event->is<sf::Event::MouseButtonPressed>())
         {
             auto mouse_event = event->getIf<sf::Event::MouseButtonPressed>();
-            if(mouse_event->button == sf::Mouse::Button::Left && main_player.getInventory().getAmountOf("Bullet") > 0)
+
+            sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+            sf::Vector2f world_mouse_pos = window.mapPixelToCoords(mouse_pos);
+
+            sf::Vector2f mouse_position = {world_mouse_pos.x / unit_size, world_mouse_pos.y / unit_size};
+
+            object target(mouse_position, {0.0f, 0.0f}, nullptr);
+
+            if(mouse_event->button == sf::Mouse::Button::Left)
+            {
+                main_player.getInventory().attackTriggered(target);
+            }
+
+            if(mouse_event->button == sf::Mouse::Button::Left)
+            {
+                main_player.getInventory().useTriggered(target);
+            }
+
+            /*if(mouse_event->button == sf::Mouse::Button::Left && main_player.getInventory().getAmountOf("Bullet") > 0)
             {
                 shoot_sound->play();
 
@@ -138,7 +169,24 @@ void game::handleEvents()
                 );
 
                 if(!main_player.getInventory().decreaseAmountOf("Bullet", 1)) throw std::runtime_error("Something went wrong :(");
+            }*/
+        }
+
+        if(event->is<sf::Event::MouseWheelScrolled>())
+        {
+            auto mouse_event = event->getIf<sf::Event::MouseWheelScrolled>();
+
+            int delta = static_cast<int>(mouse_event->delta);
+
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E))
+            {
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Tab)) main_player.getInventory().changeSelectedY(delta);
+                else main_player.getInventory().changeSelectedX(delta);
             }
+            /*else
+            {
+                unit_size += delta;
+            }*/
         }
     }
 }
@@ -161,6 +209,7 @@ void game::render()
     main_map->draw(window, main_player.getPosition());
 
     if(test_item.getAmount()) window.draw(test_item.rectangle());
+    if(pistol_item.getAmount()) window.draw(pistol_item.rectangle());
 
     //PLAYER
     main_player.update();
@@ -209,7 +258,11 @@ void game::render()
         "Unit size(px per tile): " + std::to_string(unit_size) + '\n'
         + "XY: " + std::to_string(main_player.getPosition().x) + " / " + std::to_string(main_player.getPosition().y) + '\n'
         + "Bullets: " + std::to_string(bullets.size()) + '\n'
-        + "Stamina: " + std::to_string(main_player.Stamina()) + '\n';
+        + "Stamina: " + std::to_string(main_player.Stamina()) + '\n'
+        + "\n"
+        + "Inventory:\n"
+        + "Selected index: XY: " + std::to_string(main_player.getInventory().getSelectedX()) + " / " + std::to_string(main_player.getInventory().getSelectedY()) + '\n'
+        + "Selected item: " + main_player.getInventory().getSelected().getName() + ' ' + std::to_string(main_player.getInventory().getSelected().getAmount()) + " / " + std::to_string(main_player.getInventory().getSelected().getMaxAmount()) + '\n';
 
         for(auto& a : bullets)
         {
@@ -307,6 +360,11 @@ void game::update()
     {
         test_item = main_player.getInventory().pickUpWithLeftover(test_item);
     }
+
+    if(pistol_item.collides(main_player))
+    {
+        pistol_item = main_player.getInventory().pickUpWithLeftover(pistol_item);
+    }
 }
 
 
@@ -325,4 +383,16 @@ void game::run()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); //60 FPS
     }
+}
+
+
+player& game::getPlayer()
+{
+    return main_player;
+}
+
+
+std::vector<bullet>& game::getBullets()
+{
+    return bullets;
 }
