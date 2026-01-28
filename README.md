@@ -6,15 +6,14 @@ Author(s):
 =
 
 Dungeon Shooter is 2D game being made in C++
-
 =
+
 Libraries:
-=
 SFML: 3.0.2: https://www.sfml-dev.org/documentation/3.0.2/
+=
 
-=
 Compilation:
-=
+
 (Linux)
 <img src="resources/textures/tux.png" height="50" alt="Tux pixelart">
 
