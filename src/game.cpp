@@ -5,6 +5,9 @@
 #include "..\include\block.hpp"
 #include "..\include\map.hpp"
 #include "..\include\item_object.hpp"
+#include "..\include\player.hpp"
+#include "..\include\effect.hpp"
+#include "..\include\input.hpp"
 
 
 unsigned int unit_size;
@@ -37,9 +40,9 @@ game::game()
     if(!wall_texture.loadFromFile("resources/textures/wall.png")) throw std::runtime_error("Cannot load wall texture");
     if(!vignette_texture.loadFromFile("resources/textures/vignette.png")) throw std::runtime_error("Cannot load vignette texture");
     if(!pistol_texture.loadFromFile("resources/textures/pistol.png"));
-
     if(!slot_texture.loadFromFile("resources/textures/slot.png")) throw std::runtime_error("Cannot load slot texture");
     if(!selected_slot_texture.loadFromFile("resources/textures/selected_slot.png")) throw std::runtime_error("Cannot load sellected slot texture");
+    if(!poison_texture.loadFromFile("resources/textures/poison.png")) throw std::runtime_error("Cannot load poison texture");
 
     floor_texture.setRepeated(true);
     crosshair_texture.setSmooth(false);
@@ -108,6 +111,11 @@ game::game()
 
     );
     test_item = item_object(item(std::string("Bullet"), 64, 64, &bullet_texture), object(sf::Vector2f({10.0f, 0.0f}), sf::Vector2f({1.0f, 1.0f}), &bullet_texture));
+
+    effect poison_effect = effect::Poison(600, 1);
+    main_player.applyEffect(poison_effect);
+
+    toUpdate.push_back(&main_player);
 
     window.setMouseCursorVisible(false);
 }
@@ -239,16 +247,26 @@ void game::render()
     if(!debug_mode)
     {
 
-        sf::Text health_text(main_font, std::to_string(main_player.getHP()) + " HP", static_cast<unsigned int>((window.getSize().y / 9)));
-        health_text.setFillColor(sf::Color::Red);
-        auto bounds = health_text.getLocalBounds();
-        health_text.setPosition({10.f, 10.f});
-        window.draw(health_text);
+        //EFFECTS
+        main_player.drawActiveEffects(window);
 
         // CROSSHAIR
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
         crosshair->setPosition(window.mapPixelToCoords(mouse_pos));
         window.draw(*crosshair);
+
+        //HEALTH BAR
+
+        sf::Text health_text(main_font, std::to_string(main_player.getHP()), unit_size / 2.0f);
+        health_text.setFillColor(sf::Color::Red);
+        health_text.setPosition({20.f, static_cast<float>(window.getSize().y) - 20.0f - health_text.getLocalBounds().size.y});
+        window.draw(health_text);
+
+        sf::RectangleShape health_bar_back;
+        health_bar_back.setSize({main_player.getHP(), unit_size / 2.0f});
+        health_bar_back.setFillColor(sf::Color::Red);
+        health_bar_back.setPosition({80.0f, static_cast<float>(window.getSize().y) - 10.0f});
+        window.draw(health_bar_back);
     }    
     else
     {
@@ -292,29 +310,31 @@ void game::render()
 // EACH FRAME (60 in 1 second) IT UPDATES GAME LOGIC
 void game::update()
 {
+    unit_size = window.getSize().y / 9;
+
     //RANDOM TICK
     random_tick = static_cast<bool>(random_tick_dist(rnd));
 
-    bool running = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl) && main_player.canRun();
+    bool running = (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl) || sf::Joystick::isButtonPressed(0, 0)) && main_player.canRun();
 
-    sf::Vector2i move;
+    sf::Vector2f move = input::getMovementDirection();
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+    /*if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y) < -50)
     {
         move.y -= 1;
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) || sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y) > 50)
     {
         move.y += 1;
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A ) || sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X) < -50)
     {
         move.x -= 1;
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X) > 50)
     {
         move.x += 1;
-    }
+    }*/
 
     if(move.x != 0 || move.y != 0)
     {
@@ -334,7 +354,7 @@ void game::update()
             main_player.increaseStamina(1.0f/60.0f);
     }
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F3) && std::chrono::steady_clock::now() - last_debug_toggle > debug_toggle_cooldown)       
+    if((sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F3) || sf::Joystick::isButtonPressed(0, 7)) && std::chrono::steady_clock::now() - last_debug_toggle > debug_toggle_cooldown)       
     {
         last_debug_toggle = std::chrono::steady_clock::now();
         debug_mode = !debug_mode;
@@ -364,6 +384,11 @@ void game::update()
     if(pistol_item.collides(main_player))
     {
         pistol_item = main_player.getInventory().pickUpWithLeftover(pistol_item);
+    }
+
+    for(auto& a : toUpdate)
+    {
+        a->update();
     }
 }
 

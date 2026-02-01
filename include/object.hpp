@@ -22,7 +22,7 @@ public:
 
     void operator=(const object& other);
 
-    void update();
+    virtual void update();
 
     sf::RectangleShape& rectangle();
 

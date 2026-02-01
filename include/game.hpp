@@ -63,6 +63,8 @@ private:
 
     void update();
 
+    std::vector<object*> toUpdate;
+
 public:
 
     sf::Texture lobby_background_texture;
@@ -77,6 +79,7 @@ public:
     sf::Texture pistol_texture;
     sf::Texture slot_texture;
     sf::Texture selected_slot_texture;
+    sf::Texture poison_texture;
 
     game();
 

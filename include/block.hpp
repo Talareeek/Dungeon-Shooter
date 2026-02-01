@@ -12,7 +12,7 @@ public:
 
     using object::object;
 
-    void update();
+    void update() override;
 
 };
 
