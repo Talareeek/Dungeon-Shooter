@@ -1,5 +1,6 @@
 #include "../include/headers.hpp"
 #include "../include/item.hpp"
+#include "../include/target.hpp"
 
 item::item()
 {
@@ -7,7 +8,7 @@ item::item()
 }
 
 
-item::item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture, std::function <void(object&)> onAttack, std::function <void(object&)> onUse) : name{name}, max_amount{max_amount}, amount{amount}, texture{texture}, onAttack{onAttack}, onUse{onUse}
+item::item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture, std::function <void(target&)> onAttack, std::function <void(target&)> onUse) : name{name}, max_amount{max_amount}, amount{amount}, texture{texture}, onAttack{onAttack}, onUse{onUse}
 {
 
 }
@@ -18,6 +19,8 @@ item& item::operator=(const item& other)
     this->max_amount = other.max_amount;
     this->amount = other.amount;
     this->texture = other.texture;
+    this->onAttack = other.onAttack;
+    this->onUse = other.onUse;
 
     return *this;
 }
@@ -96,12 +99,12 @@ void item::setAmount(size_t amount)
     }
 }
 
-void item::attackTriggered(object& target)
+void item::attackTriggered(target& target)
 {
     onAttack(target);
 }
 
-void item::useTriggered(object& target)
+void item::useTriggered(target& target)
 {
     onUse(target);
 }

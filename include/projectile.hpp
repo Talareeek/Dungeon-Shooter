@@ -14,9 +14,9 @@ private:
 
 public:
 
-    projectile(sf::Vector2f position, sf::Texture* texture, uint8_t damage, float direction_angle, float speed);
+    projectile(sf::Vector2f position, sf::Vector2f size, sf::Texture* texture, uint8_t damage, float direction_angle, float speed);
 
-    void update();
+    void update() override;
 };
 
 #endif // PROGECTILE_HPP

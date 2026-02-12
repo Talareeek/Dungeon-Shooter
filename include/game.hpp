@@ -1,3 +1,7 @@
+// Dungeon Shooter
+
+// game.hpp
+
 #ifndef GAME_HPP
 #define GAME_HPP
 
@@ -14,10 +18,9 @@
 class game
 {
 private:
+
     //WINDOW
     sf::RenderWindow window;
-
-    //TEXTURES
 
     //SPRITES
     std::optional<sf::Sprite> floor;
@@ -65,6 +68,17 @@ private:
 
     std::vector<object*> toUpdate;
 
+    struct enemy
+    {
+        entity entity;
+        sf::Vector2f direction;
+    };
+
+    std::vector<enemy> enemies;
+
+    void spawnEnemy();
+    void updateEnemies();
+
 public:
 
     sf::Texture lobby_background_texture;
@@ -80,6 +94,9 @@ public:
     sf::Texture slot_texture;
     sf::Texture selected_slot_texture;
     sf::Texture poison_texture;
+    sf::Texture enemy_texture;
+
+    sf::Font main_font;
 
     game();
 

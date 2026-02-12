@@ -9,7 +9,8 @@
 
 #include "../include/game.hpp"
 
-extern sf::Font main_font;
+#include "../include/target.hpp"
+
 
 extern unsigned int unit_size;
 
@@ -94,7 +95,7 @@ void inventory::draw(sf::RenderWindow& window)
 
     slot.setTextureRect({{0, 0}, {16, 16}});
 
-    sf::Text text(main_font, "0", unit_size / 3);
+    sf::Text text(dungeon_shooter_game.main_font, "0", unit_size / 3);
     text.setFillColor(sf::Color::White);
 
 
@@ -147,14 +148,14 @@ int inventory::getSelectedY()
     return selected_y;
 }
 
-void inventory::attackTriggered(object& target)
+void inventory::attackTriggered(target& target_)
 {
-    slots[selected_y][selected_x].attackTriggered(target);
+    slots[selected_y][selected_x].attackTriggered(target_);
 }
 
-void inventory::useTriggered(object& target)
+void inventory::useTriggered(target& target_)
 {
-    slots[selected_y][selected_x].useTriggered(target);
+    slots[selected_y][selected_x].useTriggered(target_);
 }
 
 item& inventory::getSelected()

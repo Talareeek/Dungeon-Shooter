@@ -5,6 +5,8 @@
 
 #include "object.hpp"
 
+#include "target.hpp"
+
 class item
 {
 private:
@@ -15,14 +17,14 @@ private:
     
     sf::Texture* texture = nullptr;
 
-    std::function <void(object&)> onAttack = [](object& target){};
-    std::function <void(object&)> onUse = [](object& target){};
+    std::function <void(target&)> onAttack = [](target& target_){};
+    std::function <void(target&)> onUse = [](target& target_){};
 
 public:
 
     item();
 
-    item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture, std::function <void(object&)> onAttack = [](object& target){}, std::function <void(object&)> onUse = [](object& target){});
+    item(std::string name, size_t max_amount, size_t amount, sf::Texture* texture, std::function <void(target&)> onAttack = [](target& target_){}, std::function <void(target&)> onUse = [](target& target_){});
 
     item& operator=(const item& other);
 
@@ -42,9 +44,9 @@ public:
 
     void setAmount(size_t amount);
 
-    void attackTriggered(object& target);
+    void attackTriggered(target& target_);
 
-    void useTriggered(object& target);
+    void useTriggered(target& target_);
 };
 
 #endif // ITEM_HPP

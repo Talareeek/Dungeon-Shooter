@@ -16,7 +16,6 @@
 #include <thread>
 #include <vector>
 #include <stack>
-#include <conio.h>
 #include <fstream>
 
 // ===== SFML =====

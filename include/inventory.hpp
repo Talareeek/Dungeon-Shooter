@@ -33,9 +33,9 @@ public:
 
     int getSelectedY();
 
-    void attackTriggered(object& target);
+    void attackTriggered(target& target_);
 
-    void useTriggered(object& target);
+    void useTriggered(target& target_);
 
     item& getSelected();
 };
